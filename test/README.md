@@ -1,19 +1,26 @@
-# Sample testbench for a Tiny Tapeout project
+# Tiny8 CPU 仿真测试
 
-This is a sample testbench for a Tiny Tapeout project. It uses [cocotb](https://docs.cocotb.org/en/stable/) to drive the DUT and check the outputs.
-See below to get started or for more information, check the [website](https://tinytapeout.com/hdl/testing/).
+本目录沿用官方模板的 Cocotb/Icarus 流程。四个自检用例覆盖同步复位、
+顺序装载、全部 ALU 指令、三类跳转、IN/MOV、单步、`ena` 暂停、
+START 重启，以及复位擦除程序与状态。
 
 ## Setting up
 
-1. Edit [Makefile](Makefile) and modify `PROJECT_SOURCES` to point to your Verilog files.
-2. Edit [tb.v](tb.v) and replace `tt_um_example` with your module name.
+安装 Icarus Verilog 和 Python，然后执行：
 
 ## How to run
 
 To run the RTL simulation:
 
 ```sh
+python -m pip install -r requirements.txt
 make -B
+```
+
+Windows 下也可以不用 `make`，直接使用 Cocotb runner：
+
+```powershell
+python run.py
 ```
 
 To run gatelevel simulation, first harden your project and copy `../runs/wokwi/results/final/verilog/gl/{your_module_name}.v` to `gate_level_netlist.v`.

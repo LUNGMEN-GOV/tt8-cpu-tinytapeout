@@ -1,6 +1,44 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+# Tiny8 CPU：Tiny Tapeout 单 Tile 8 位处理器
+
+这是一个以低流片成本为首要约束的 8 位微型 CPU，基于 Tiny Tapeout
+官方 SKY130 Verilog 模板。项目配置请求 **1x1 Tile**，包含完整 RTL、
+Cocotb 自检、汇编器、示例程序和使用文档。
+
+主要规格：
+
+- 8 位数据通路，4 个通用寄存器 R0-R3；
+- 16 字节可装载程序存储器，4 位程序计数器；
+- ADD、SUB、AND、OR、XOR、NOT、SHL、SHR；
+- JMP、JZ、JNZ、LDI、MOV、IN、NOP、HALT；
+- 连续运行和单步执行；
+- 低有效同步复位，复位清除程序与全部状态；
+- 目标时钟 10 MHz，最终频率和面积以官方 GDS workflow 报告为准。
+
+详细资料见 [docs/USAGE_zh.md](docs/USAGE_zh.md)，测试说明见
+[test/README.md](test/README.md)，验证结论见
+[docs/verification.md](docs/verification.md)。
+
+作者信息已填写为 Jackson Haley；顶层模块已加入 GitHub 用户名，设置为
+`tt_um_lungmen_gov_tt8_cpu`。
+
+快速验证：
+
+```sh
+cd test
+python -m pip install -r requirements.txt
+make -B
+```
+
+汇编示例：
+
+```sh
+python tools/assembler.py examples/demo.asm -o examples/demo.hex
+python -m unittest tools.test_assembler -v
+```
+
+以下保留上游模板原始说明。
 
 - [Read the documentation for project](docs/info.md)
 
