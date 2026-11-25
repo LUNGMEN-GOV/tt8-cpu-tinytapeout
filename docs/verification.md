@@ -6,8 +6,8 @@
 
 RTL 功能、Verilog 结构、复位行为和 SKY130 标准单元面积估算已检查。
 初版 16 字节程序存储器在官方详细布线中无法于 1x1 Tile 收敛；本版将程序
-存储器压缩为 8 字节后，标准单元映射面积下降约 33.2%，用于再次挑战 1x1。
-本地结果**不能替代官方布局布线、签核 STA、DRC/LVS、precheck 和门级回归**。
+存储器压缩为 8 字节后，标准单元映射面积下降约 33.2%。优化版已通过官方
+GDS、DRC/LVS、Tiny Tapeout precheck 和门级回归，确认可以保持 1x1 Tile。
 
 ## 基线
 
@@ -100,6 +100,25 @@ GitHub Actions `GDS` run `45588310122` 对 16 字节版本完成了综合、放�
 当前映射单元面积约占毛面积 38.9%。该比例不包含布线、tap/filler/decap、
 时钟树、边界和拥塞影响，因此仍不能视为已完成布局。
 
+## 优化版官方 GDS 结果
+
+GitHub Actions `GDS` run `45606454765`（提交 `ef67b0b`）在 4 分 44 秒内
+完成布局布线，随后门级测试、precheck 和版图 viewer 均通过：
+
+- 官方综合标准单元面积：8,445.6000 µm²；
+- post-route 标准单元面积：10,636.5 µm²；
+- core 面积：16,493.3 µm²，标准单元利用率：64.4895%；
+- 详细布线最终违例：0；Magic DRC：0；LVS：0；天线：0；供电网格：0；
+- post-route setup 最差余量：56.4307 ns，违例数 0，TNS 0；
+- post-route hold 最差余量：0.1342 ns，违例数 0，TNS 0；
+- 门级 Cocotb 回归、Tiny Tapeout precheck 的 17 项检查及 viewer 部署通过。
+
+最终指标还记录了 251 个 max-slew 和 1 个 max-fanout 告警（max-cap 为 0）。
+LibreLane 将 max-slew 标为 warning，而不是 setup/hold 或制造性失败；官方 GDS
+workflow 仍判定成功。鉴于 10 MHz 的 setup/hold 余量充足，继续增加缓冲会
+提高面积和布线成本，本版不为消除非致命告警而扩大 Tile。流片前若 shuttle
+更新 PDK 或 flow 版本，应重新运行 workflow，不能沿用本报告的数值。
+
 ## 时序检查
 
 设计约束已统一为 10 MHz / 100 ns。RTL 只有一个时钟域，所有运算为
@@ -107,18 +126,19 @@ GitHub Actions `GDS` run `45588310122` 对 16 字节版本完成了综合、放�
 但本地轻量工具链不能对该 Liberty 的参数化单元完成可靠的签核 STA，因此
 这里**不声称已通过布局后时序**。
 
-100 ns 周期相对 8 位 ALU 是保守目标。初版放置后没有 setup 违例，但流程
-在详细布线阶段停止。最终仍必须以优化版官方 GDS workflow 的 post-route
-setup/hold 报告为准；若仅出现时序负裕量，优先保持 1x1 Tile 并适当增大
-`CLOCK_PERIOD`，不要直接购买更多 Tile。
+100 ns 周期相对 8 位 ALU 是保守目标。优化版 post-route setup/hold 余量均
+为正且 TNS 为 0，支持 10 MHz 约束。这里的“通过”是该 flow/PDK/角点下的
+静态时序结果，不是对任意电压、温度、封装和实验条件的绝对硅后保证。
 
-## 尚待官方流程确认
+## 官方流程状态与硅后范围
 
-- LibreLane 完整布局布线是否在 1x1 Tile 收敛；
-- post-route setup/hold slack；
-- 拥塞和天线修复；
-- DRC、LVS、Tiny Tapeout precheck；
-- 生成的门级网表 Cocotb 4/4 回归；
-- 实际硅片频率、电压和温度范围。
+- RTL test：通过；
+- LibreLane 1x1 GDS：通过；
+- post-route setup/hold：通过；
+- DRC、LVS、天线、供电网格：通过；
+- Tiny Tapeout precheck：通过；
+- 生成的门级网表 Cocotb 4/4 回归：通过；
+- viewer：通过。
 
-这些检查由模板中的 `.github/workflows/gds.yaml` 在推送到 GitHub 后执行。
+仍需在收到实体 DevKit 后验证实际硅片的功能、最高频率、电压和温度范围；
+布局前检查无法替代硅后测试。

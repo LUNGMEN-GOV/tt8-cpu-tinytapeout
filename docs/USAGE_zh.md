@@ -94,9 +94,10 @@ DevKit（300 欧元）并选择全球经济运输（15 欧元），常规合计�
 不含增值税、进口税或当地清关费。价格与补贴名额可能变化，付款前应重新使用
 官方计算器确认。
 
-## 7. 提交前必须修改
+## 7. GitHub 提交状态
 
 1. `info.yaml` 作者已填写为 `Jackson Haley`。
 2. 顶层模块已按 GitHub 账户设置为 `tt_um_lungmen_gov_tt8_cpu`，并已同步
    `info.yaml`、`src/project.v`、`test/tb.v`。
-3. 在 GitHub Actions 中取得 RTL test、GDS、precheck、gate-level test 全绿。
+3. 提交 `ef67b0b` 的 GitHub Actions 已取得 RTL test、1x1 GDS、precheck、
+   gate-level test 和 viewer 全绿；详细指标见 `docs/verification.md`。
