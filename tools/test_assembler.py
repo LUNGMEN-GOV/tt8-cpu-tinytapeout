@@ -29,8 +29,12 @@ class AssemblerTests(unittest.TestCase):
         self.assertEqual(image, [0x18, 0xFF, 0x26, 0x84, 0xEC, 0xC7, 0xB0, 0xF0])
 
     def test_rejects_oversize_program(self):
-        with self.assertRaisesRegex(ValueError, "exceeds 16 bytes"):
-            assemble("\n".join(["NOP"] * 17))
+        with self.assertRaisesRegex(ValueError, "exceeds 8 bytes"):
+            assemble("\n".join(["NOP"] * 9))
+
+    def test_rejects_out_of_range_branch(self):
+        with self.assertRaisesRegex(ValueError, "does not fit 3 bits"):
+            assemble("JMP 8")
 
 
 if __name__ == "__main__":

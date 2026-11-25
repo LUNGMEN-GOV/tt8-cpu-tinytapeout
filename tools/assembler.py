@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Two-pass assembler for the Tiny8 16-byte instruction set."""
+"""Two-pass assembler for the Tiny8 8-byte program store."""
 
 import argparse
 import pathlib
@@ -80,8 +80,8 @@ def assemble(text):
             labels[label] = address
         if instruction:
             address += instruction_size(instruction)
-        if address > 16:
-            raise ValueError(f"line {line_no}: program exceeds 16 bytes")
+        if address > 8:
+            raise ValueError(f"line {line_no}: program exceeds 8 bytes")
 
     image = []
     for line_no, code in lines:
@@ -119,8 +119,8 @@ def assemble(text):
             if len(fields) != 2:
                 raise ValueError(f"line {line_no}: {mnemonic} requires address")
             target = parse_number(fields[1], labels)
-            if not 0 <= target <= 0xF:
-                raise ValueError(f"line {line_no}: branch address does not fit 4 bits")
+            if not 0 <= target <= 0x7:
+                raise ValueError(f"line {line_no}: branch address does not fit 3 bits")
             image.append(opcode | target)
 
     return image
@@ -130,7 +130,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=pathlib.Path)
     parser.add_argument("-o", "--output", type=pathlib.Path)
-    parser.add_argument("--pad", action="store_true", help="pad image to 16 bytes")
+    parser.add_argument("--pad", action="store_true", help="pad image to 8 bytes")
     args = parser.parse_args()
 
     try:
@@ -139,7 +139,7 @@ def main():
         parser.error(str(error))
 
     if args.pad:
-        image += [0] * (16 - len(image))
+        image += [0] * (8 - len(image))
     output = "\n".join(f"{byte:02X}" for byte in image) + "\n"
     if args.output:
         args.output.write_text(output, encoding="ascii")

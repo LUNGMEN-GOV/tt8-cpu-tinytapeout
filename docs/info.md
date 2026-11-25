@@ -10,17 +10,17 @@ You can also include images in this folder and reference them in the markdown. E
 ## How it works
 
 Tiny8 is a compact, host-programmable 8-bit CPU designed for a single Tiny
-Tapeout tile. A host writes up to 16 program bytes through `ui_in`, pulses
+Tapeout tile. A host writes up to 8 program bytes through `ui_in`, pulses
 `START`, and then either runs continuously or clocks one instruction at a
 time. The selected R0-R3 register is visible on `uo_out`.
 
-The CPU has four 8-bit registers, a 4-bit program counter, zero and carry
+The CPU has four 8-bit registers, a 3-bit program counter, zero and carry
 flags, and a one-cycle ALU. Its instruction set includes load, move, input,
 add, subtract, bitwise logic, shifts, unconditional and zero-conditional
 branches, and halt. LDI is the only two-byte instruction.
 
 The active-low reset is synchronous. It clears all registers, flags, loader
-state, and all 16 program bytes. `START` restarts execution without erasing
+state, and all 8 program bytes. `START` restarts execution without erasing
 the loaded program.
 
 ## How to test

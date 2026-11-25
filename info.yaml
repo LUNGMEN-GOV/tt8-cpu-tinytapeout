@@ -3,7 +3,7 @@ project:
   title:        "Tiny8 CPU"
   author:       "Jackson Haley"
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "Compact 8-bit CPU with ALU, branches, four registers and a 16-byte program store"
+  description:  "Compact 8-bit CPU with ALU, branches, four registers and an 8-byte program store"
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     10000000
 

@@ -1,7 +1,7 @@
 /*
  * Tiny8: compact 8-bit CPU for one Tiny Tapeout tile.
  * Instruction: [7:4] opcode, [3:2] destination, [1:0] source.
- * LDI consumes the next byte. Branch targets are absolute 4-bit addresses.
+ * LDI consumes the next byte. Branch targets are absolute 3-bit addresses.
  */
 
 `default_nettype none
@@ -38,10 +38,10 @@ module tiny8_cpu (
   localparam [3:0] OP_IN   = 4'hE;
   localparam [3:0] OP_HALT = 4'hF;
 
-  reg [7:0] program_memory [0:15];
+  reg [7:0] program_memory [0:7];
   reg [7:0] registers      [0:3];
-  reg [3:0] program_counter;
-  reg [3:0] load_address;
+  reg [2:0] program_counter;
+  reg [2:0] load_address;
   reg       flag_zero;
   reg       flag_carry;
   reg       is_halted;
@@ -61,35 +61,35 @@ module tiny8_cpu (
   // START preserves program memory and resets only architectural state.
   always @(posedge clk) begin
     if (!rst_n) begin
-      program_counter <= 4'h0;
-      load_address    <= 4'h0;
+      program_counter <= 3'h0;
+      load_address    <= 3'h0;
       flag_zero       <= 1'b0;
       flag_carry      <= 1'b0;
       is_halted       <= 1'b1;
       for (i = 0; i < 4; i = i + 1)
         registers[i] <= 8'h00;
-      for (i = 0; i < 16; i = i + 1)
+      for (i = 0; i < 8; i = i + 1)
         program_memory[i] <= 8'h00;
     end else if (enable) begin
       if (program_write) begin
         program_memory[load_address] <= data_in;
-        load_address <= load_address + 4'h1;
+        load_address <= load_address + 3'h1;
       end else if (start) begin
-        program_counter <= 4'h0;
+        program_counter <= 3'h0;
         flag_zero       <= 1'b0;
         flag_carry      <= 1'b0;
         is_halted       <= 1'b0;
         for (i = 0; i < 4; i = i + 1)
           registers[i] <= 8'h00;
       end else if (execute) begin
-        program_counter <= program_counter + 4'h1;
+        program_counter <= program_counter + 3'h1;
         case (opcode)
           OP_NOP: begin end
           OP_LDI: begin
-            registers[destination] <= program_memory[program_counter + 4'h1];
-            flag_zero <= (program_memory[program_counter + 4'h1] == 8'h00);
+            registers[destination] <= program_memory[program_counter + 3'h1];
+            flag_zero <= (program_memory[program_counter + 3'h1] == 8'h00);
             flag_carry <= 1'b0;
-            program_counter <= program_counter + 4'h2;
+            program_counter <= program_counter + 3'h2;
           end
           OP_MOV: begin
             registers[destination] <= registers[source];
@@ -138,15 +138,15 @@ module tiny8_cpu (
             flag_carry <= registers[destination][0];
           end
           OP_JMP: begin
-            program_counter <= instruction[3:0];
+            program_counter <= instruction[2:0];
           end
           OP_JZ: begin
             if (flag_zero)
-              program_counter <= instruction[3:0];
+              program_counter <= instruction[2:0];
           end
           OP_JNZ: begin
             if (!flag_zero)
-              program_counter <= instruction[3:0];
+              program_counter <= instruction[2:0];
           end
           OP_IN: begin
             registers[destination] <= data_in;
